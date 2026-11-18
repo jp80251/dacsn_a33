@@ -1,0 +1,59 @@
+services:
+  tienda:
+    image: prestashop/prostashop:8.2
+    enviroment:
+    - PS_INSTALL_AUTO=1
+    - PS_LANGUAGE=es
+    - PS_COUNTRY=ES
+    - PS_FOLDER_ADMIN=admin-tienda
+    - PS_DEMO_MODE = 0
+    - PS_FOLDER_INSTALL = install-tienda
+    - PS_DEV_MODE = 0
+    - ADMIN_MAIL =demo@prestashop.com
+    - ADMIN_PASSWD = prestashop_demo
+    - DB_SERVER = bd
+    - DB_NAME = prestashop
+    - DB_USER = root
+    - DB_PASSWD = admin
+    
+
+
+    volumes:
+    - ficherosTienda:/var/www/html
+    newtorks:
+    ports:
+      -"${PUERTO:-8080}:80"
+    depends_on:
+    restart: 
+  
+  bd:
+   image: mariadb:11.8
+  enviroment:
+    volumes:
+    newtorks:
+    ports:
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 3s
+      retries: 10
+    depends_on:
+    restart: 
+  correo:
+   image: prestashop/prostashop:8.2
+   enviroment:
+   volumes:
+   newtorks:
+   ports:
+   depends_on:
+   restart: 
+
+  
+
+  
+
+volumes:
+ficherosTienda:
+networks:
+  - internal
+    
