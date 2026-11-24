@@ -4,18 +4,18 @@ services:
     image: prestashop/prestashop:8.2
     environment:
       DB_SERVER: bd
-      DB_NAME: ${NOMBRE_BD}
-      DB_USER: ${USUARIO_BD}
-      DB_PASSWD: ${CONTRASENA_BD}
+      DB_NAME: prestashop
+      DB_USER: admin
+      DB_PASSWD: admin12345
       PS_INSTALL_AUTO: 1
-      PS_DOMAIN: ${DIRECCION}:${PUERTO:-8080}
+      PS_DOMAIN: 172.20.33.216:${PUERTO:-8080}
       PS_LANGUAGE: es
       PS_COUNTRY: ES
       PS_DEMO_MODE: 0
       PS_FOLDER_ADMIN: admin-tienda
       PS_FOLDER_INSTALL: install-tienda
-      ADMIN_MAIL: ${CORREO_ADMIN}
-      ADMIN_PASSWD: ${CONTRASENA_ADMIN}
+      ADMIN_MAIL: admin@tienda.es
+      ADMIN_PASSWD: admin123
     volumes:
       - ficherosTienda:/var/www/html
     networks:
@@ -32,10 +32,10 @@ services:
   bd:
     image: mariadb:11.8
     environment:
-      MARIADB_DATABASE: ${NOMBRE_BD}
-      MARIADB_USER: ${USUARIO_BD}
-      MARIADB_PASSWORD: ${CONTRASENA_BD}
-      MARIADB_ROOT_PASSWORD: ${CONTRASENA_ROOT}
+      MARIADB_DATABASE: ${NOMBRE_BD:-prestashop}
+      MARIADB_USER: ${USUARIO_BD:-admin}
+      MARIADB_PASSWORD: ${CONTRASENA_BD:-admin12345}
+      MARIADB_ROOT_PASSWORD: ${CONTRASENA_ROOT:-root12345}
     volumes:
       - datosBD:/var/lib/mysql
     networks:
@@ -64,8 +64,8 @@ services:
     ports:
       - "${PUERTO_ADMINER:-8081}:8080"
     depends_on:
-     bd:
-        
+      bd:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
