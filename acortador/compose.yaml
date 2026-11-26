@@ -1,0 +1,59 @@
+
+services:
+  acortador:
+    image: yourls:1.10.6-fpm
+    environment:
+      YOURLS_DB_HOST: bd
+      YOURLS_DB_NAME: ${BD_NOMBRE}
+      YOURLS_DB_USER: ${BD_USUARIO}
+      YOURLS_DB_PASS: ${BD_CONTRASENA}
+      YOURLS_SITE: http://${DIRECCION}:${PUERTO:-8080}
+      YOURLS_USER: ${YOURLS_USER}
+      YOURLS_PASS: ${YOURLS_PASS}
+    volumes:
+      - codigo:/var/www/html
+    networks:
+      - frontal
+      - interna
+    depends_on:
+      bd:
+        condition: service_healthy
+  web:
+    image: nginx:1.30
+    ports:
+      - "${PUERTO:-8080}:80"
+    volumes:
+      - codigo:/var/www/html:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - frontal
+    depends_on:
+      - acortador
+
+
+
+  bd:
+    image: mariadb:11.8
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+      MARIADB_DATABASE: ${BD_NOMBRE}
+      MARIADB_USER: ${BD_USUARIO}
+      MARIADB_PASSWORD: ${BD_CONTRASENA}
+    volumes:
+      - datos:/var/lib/mysql
+    networks:
+      - interna
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  frontal:
+  interna:
+
+volumes:
+  codigo:
+  datos:
