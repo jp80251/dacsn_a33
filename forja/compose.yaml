@@ -101,7 +101,7 @@ services:
       retries: 10
 
   correo:
-    image: axllent/mailpit:latest
+    image: axllent/mailpit:v1.32
     container_name: correo
     restart: unless-stopped
 
